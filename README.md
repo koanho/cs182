@@ -39,5 +39,5 @@ HW 3
 ### Q2: Summarization  (Transformer)        DONE
 
 
-### Q3: Distilation       NOT YET
+### Q3: Distilation       Done with some modifications of original code! (As there are some errors, and errorneous flow...)
 
