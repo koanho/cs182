@@ -40,14 +40,13 @@ class AttentionQKV(nn.Module):
 
         # As defined is the Attention is all you need paper: https://arxiv.org/pdf/1706.03762.pdf
         key_dim = th.tensor(keys.shape[-1],dtype=th.float32)
-        #print(queries.shape, keys.shape)
-        # (2x 3 x 2)  (2x 5 X 2)  => 2x 3 x5  (batch, n_queries, n_values) First transpose to make (2 X 3 X 2) (2 X 2 X5) and then multiply 
-        # you should use transpose for multiplication
+        # you should use transpose for multiplication (Batch, head, n_queries, q_dim) X (Batch, head, n_keyval, k_dim)
+        #=> Transpose (Batch, head, n_queries, q_dim) X (Batch, head, k_dim, n_keyval)  (q_dim = k_dim)
         similarity =  queries @ keys.transpose(-1, -2) / th.sqrt(key_dim)# Compute the similarity according to the QKV formula
-        #similarity => 2x 3x 5 values => 2x 5x 2   5 dim similarity의 값과 각 value가 곱해짐 (value 5 dim) =>  2x n_queries X depth_k
-        # MultiHead일 경우 (2 X HEAD X 3 X 5) (2 X HEAD X 5 X 3) 
+        # similarity = (Batch, head, n_queries, n_keys)  
         masked_similarity = self.apply_mask(similarity, mask=mask) # We give you the mask to apply so that it is correct, you do not need to modify this.
         weights =  F.softmax(masked_similarity, dim = -1)# Turn the similarity into a normalized output. Remember that the last dim contains the features
+        # MultiHead일 경우 output =  (2 X HEAD X n_queries X n_keys) (2 X HEAD X n_values X v_dim) 
         output =  weights @ values
         ####################################  END OF YOUR CODE  ##################################
 
